@@ -1,12 +1,12 @@
 /* Constantes e regras de domínio compartilhadas por todo o app. */
-export const APP_VERSION = '4.0.0';
+export const APP_VERSION = '4.0.1';
 export const SCHEMA_VERSION = 4;
 
 export const DB_NAME = 'patrimonio-investimentos-db', DB_VERSION = 1, STORE = 'records';
 export const STATE_KEY = 'patrimonio-app-state-v1', PREF_KEY = 'patrimonio-prefs-v1';
 export const BACKUP_PREFIX = 'patrimonio-pre-', KEEP_BACKUPS = 3;
 
-export const EPS = 1e-8, STALE_DAYS = 7, BACKUP_DAYS = 30, TX_PAGE = 200, RF_MATURITY_ALERT_DAYS = 30;
+export const EPS = 1e-8, STALE_DAYS = 3, BACKUP_DAYS = 30, TX_PAGE = 200, RF_MATURITY_ALERT_DAYS = 30;
 export const IR_EXEMPT_STOCKS = 20000, DARF_MIN = 10;
 
 /**

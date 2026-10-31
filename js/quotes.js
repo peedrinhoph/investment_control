@@ -52,25 +52,39 @@ async function fetchRates() {
 
 export const quotesEnabled = () => prefs.quotes.provider !== 'off' || prefs.quotes.fx || prefs.quotes.rates;
 
+/** Busca cotações dos ativos compatíveis sem alterar o estado da carteira. */
+export async function fetchAssetQuotes() {
+  const provider = PROVIDERS[prefs.quotes.provider];
+  const out = { quotes: [], failed: [] };
+  if (!provider?.fetchQuote) return out;
+
+  const list = state.assets.filter(a => a.currency === 'BRL' && !isAutoRF(a) && ['Ação', 'FII', 'ETF', 'BDR'].includes(a.assetClass));
+  let i = 0;
+  const worker = async () => {
+    while (i < list.length) {
+      const asset = list[i++];
+      try {
+        const quote = await provider.fetchQuote(asset.ticker, prefs.quotes.token);
+        out.quotes.push({ asset, price: quote.price, date: quote.date });
+      } catch (_) {
+        out.failed.push(asset.ticker);
+      }
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  return out;
+}
+
 /**
  * Atualiza cotações, dólar e indicadores conforme as preferências.
  * Retorna um resumo { updated, failed: [tickers], fx, rates, errors }.
  */
 export async function runQuoteUpdate() {
   const q = prefs.quotes, out = { updated: 0, failed: [], fx: false, rates: false, errors: [] };
-  const provider = PROVIDERS[q.provider];
-  if (provider?.fetchQuote) {
-    const list = state.assets.filter(a => a.currency === 'BRL' && !isAutoRF(a) && ['Ação', 'FII', 'ETF', 'BDR'].includes(a.assetClass));
-    let i = 0;
-    const worker = async () => {
-      while (i < list.length) {
-        const a = list[i++];
-        try { const r = await provider.fetchQuote(a.ticker, q.token); a.quote = r.price; a.quoteDate = r.date; out.updated++; }
-        catch (_) { out.failed.push(a.ticker); }
-      }
-    };
-    await Promise.all([worker(), worker(), worker()]);
-  }
+  const fetched = await fetchAssetQuotes();
+  fetched.quotes.forEach(({ asset, price, date }) => { asset.quote = price; asset.quoteDate = date; });
+  out.updated = fetched.quotes.length;
+  out.failed = fetched.failed;
   if (q.fx && hasUsdAssets()) {
     try { state.settings.fx.USD = { rate: await fetchUsd(), date: today() }; out.fx = true; }
     catch (err) { out.errors.push('dólar: ' + err.message); }
@@ -86,11 +100,11 @@ export async function runQuoteUpdate() {
   if (out.updated || out.fx || out.rates) await persist();
   return out;
 }
-/** Execução automática ao abrir o app: no máximo a cada 6 horas. */
+/** Execução automática ao abrir o app: no máximo a cada 1 hora. */
 export function shouldAutoRun() {
   if (!prefs.quotes.auto || !quotesEnabled()) return false;
   const last = Date.parse(prefs.quotes.lastRun || 0);
-  return !last || Date.now() - last > 6 * 3600e3;
+  return !last || Date.now() - last > 1 * 3600e3;
 }
 export const summarize = r => {
   const parts = [];

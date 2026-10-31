@@ -4,6 +4,8 @@ import { state, getAsset, commit, clone, keepBackup } from './store.js';
 import { buildLedger, sequenceError, holding, isAutoRF, usdRate, EMPTY_H } from './finance.js';
 import { $, e, fmt, num, round, round2, toInput, today, isDate, dateBR, daysSince, str, uid, qtyFmt, signed, signCls, plural, cleanTicker } from './utils.js';
 import { openModal, closeModal, toast, options, optionsMap } from './ui.js';
+import { PROVIDERS, fetchAssetQuotes } from './quotes.js';
+import { prefs } from './prefs.js';
 
 /* ======================= Movimentação ======================= */
 /**
@@ -221,18 +223,64 @@ export function showQuoteForm(a) {
 export function showBulkQuotes() {
   const list = state.assets.filter(a => !isAutoRF(a)).sort((x, y) => Number(holding(y).open) - Number(holding(x).open) || x.ticker.localeCompare(y.ticker));
   if (!list.length) return toast('Nenhum ativo com cotação manual.', true);
+  const canFetch = !!PROVIDERS[prefs.quotes.provider]?.fetchQuote;
   openModal('Atualizar cotações', `<form id="pricesForm"><p class="muted small" style="margin-top:0">Informe as cotações consultadas na corretora. Só os campos alterados terão a data atualizada. Renda fixa com indexador é calculada automaticamente.</p>
+    <div class="form-actions" style="justify-content:flex-start;margin:0 0 12px">
+      <button type="button" class="btn" id="bqFetch" ${canFetch ? '' : 'disabled'}>Buscar preços online</button>
+      <span class="hint" id="bqFetchStatus" aria-live="polite">${canFetch ? 'Disponível para ações, FIIs, ETFs e BDRs em reais.' : 'Configure um provedor em Configurações para buscar preços.'}</span>
+    </div>
     <div class="field" style="max-width:220px;margin-bottom:12px"><label for="bq-d">Data das cotações</label><input id="bq-d" name="__date" type="date" max="${today()}" value="${today()}" required></div>
-    <div class="form-grid">${list.map(a => `<div class="field"><label for="bq-${e(a.id)}">${e(a.ticker)}${a.currency === 'USD' ? ' (US$)' : ''} <span class="${daysSince(a.quoteDate) > STALE_DAYS ? 'warn' : ''}">· ${a.quoteDate ? dateBR(a.quoteDate) : 'sem data'}</span></label><input id="bq-${e(a.id)}" data-ticker="${e(a.ticker)}" data-old="${e(toInput(a.quote))}" type="text" inputmode="decimal" value="${e(toInput(a.quote))}" placeholder="Preço atual"></div>`).join('')}</div>
+    <div class="form-grid">${list.map(a => `<div class="field"><label for="bq-${e(a.id)}">${e(a.ticker)}${a.currency === 'USD' ? ' (US$)' : ''} <span class="${daysSince(a.quoteDate) > STALE_DAYS ? 'warn' : ''}" data-quote-date-label data-original-date="${e(a.quoteDate ? dateBR(a.quoteDate) : 'sem data')}" data-original-stale="${daysSince(a.quoteDate) > STALE_DAYS}">· ${a.quoteDate ? dateBR(a.quoteDate) : 'sem data'}</span></label><input id="bq-${e(a.id)}" data-ticker="${e(a.ticker)}" data-old="${e(toInput(a.quote))}" type="text" inputmode="decimal" value="${e(toInput(a.quote))}" placeholder="Preço atual"></div>`).join('')}</div>
     <div class="form-actions"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar cotações</button></div></form>`);
+  $('bqFetch').onclick = async () => {
+    const btn = $('bqFetch'), status = $('bqFetchStatus'), form = $('pricesForm');
+    btn.disabled = true;
+    btn.textContent = 'Buscando…';
+    status.textContent = 'Consultando o provedor configurado…';
+    try {
+      const result = await fetchAssetQuotes();
+      const inputs = new Map([...form.querySelectorAll('[data-ticker]')].map(input => [input.dataset.ticker, input]));
+      result.quotes.forEach(({ asset, price, date }) => {
+        const input = inputs.get(asset.ticker);
+        if (!input) return;
+        input.value = toInput(price);
+        input.dataset.quoteDate = date;
+        const dateLabel = input.labels?.[0]?.querySelector('[data-quote-date-label]');
+        if (dateLabel) {
+          dateLabel.textContent = `· online ${dateBR(date)}`;
+          dateLabel.classList.remove('warn');
+        }
+      });
+      const messages = [];
+      if (result.quotes.length) messages.push(`${result.quotes.length} preço(s) preenchido(s)`);
+      if (result.failed.length) messages.push(`falharam: ${result.failed.slice(0, 5).join(', ')}${result.failed.length > 5 ? '…' : ''}`);
+      if (!messages.length) messages.push('Nenhum ativo compatível encontrado para busca automática.');
+      status.textContent = messages.join('. ') + '.';
+    } catch (err) {
+      status.textContent = `Falha ao buscar preços: ${err.message}`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Buscar preços online';
+    }
+  };
+  $('bq-d').onchange = () => {
+    $('pricesForm').querySelectorAll('[data-ticker][data-quote-date]').forEach(input => {
+      delete input.dataset.quoteDate;
+      const dateLabel = input.labels?.[0]?.querySelector('[data-quote-date-label]');
+      if (dateLabel) {
+        dateLabel.textContent = `· ${dateLabel.dataset.originalDate}`;
+        dateLabel.classList.toggle('warn', dateLabel.dataset.originalStale === 'true');
+      }
+    });
+  };
   $('pricesForm').onsubmit = async ev => {
     ev.preventDefault();
     const date = ev.currentTarget.elements.__date.value;
     if (!isDate(date)) return toast('Informe a data.', true);
     let changed = 0;
     ev.currentTarget.querySelectorAll('[data-ticker]').forEach(i => {
-      const a = getAsset(i.dataset.ticker), v = num(i.value);
-      if (a && i.value !== '' && v > 0 && (i.value !== i.dataset.old || a.quoteDate !== date)) { a.quote = v; a.quoteDate = date; changed++; }
+      const a = getAsset(i.dataset.ticker), v = num(i.value), quoteDate = i.dataset.quoteDate || date;
+      if (a && i.value !== '' && v > 0 && (i.value !== i.dataset.old || a.quoteDate !== quoteDate)) { a.quote = v; a.quoteDate = quoteDate; changed++; }
     });
     closeModal(); await commit(changed ? `${plural(changed, 'cotação atualizada', 'cotações atualizadas')}.` : 'Nada alterado.');
   };
@@ -247,7 +295,19 @@ export function showIndicators(onAuto = null) {
     <div class="field"><label for="in-ipca">IPCA projetado (% a.a.)</label><input id="in-ipca" name="ipca" type="text" inputmode="decimal" value="${e(toInput(R.ipca, 2))}" placeholder="Ex.: 4,50"><span class="hint">Use a inflação esperada para os próximos 12 meses.</span></div>
     <div class="field"><label for="in-usd">Dólar (R$)</label><input id="in-usd" name="usd" type="text" inputmode="decimal" value="${e(toInput(U.rate, 4))}" placeholder="Ex.: 5,40"><span class="hint">${U.date ? `Atualizado em ${dateBR(U.date)}.` : 'Ainda não informado.'}</span></div>
   </div><div class="form-actions">${onAuto ? '<button type="button" class="btn" id="indAuto" style="margin-right:auto">Buscar automaticamente</button>' : ''}<button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
-  if (onAuto) $('indAuto').onclick = onAuto;
+  if (onAuto) $('indAuto').onclick = async () => {
+    const btn = $('indAuto');
+    btn.disabled = true;
+    btn.textContent = 'Buscando…';
+    btn.setAttribute('aria-busy', 'true');
+    try { await onAuto(); }
+    catch (err) { toast(`Falha ao buscar indicadores: ${err.message}`, true); }
+    finally {
+      btn.disabled = false;
+      btn.textContent = 'Buscar automaticamente';
+      btn.removeAttribute('aria-busy');
+    }
+  };
   $('indForm').onsubmit = async ev => {
     ev.preventDefault();
     const f = ev.currentTarget.elements, d = today();

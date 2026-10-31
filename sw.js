@@ -1,6 +1,6 @@
 /* Service worker do Patrimônio: funciona offline e avisa quando há nova versão.
    Ao publicar uma atualização, altere VERSION: o app mostra "Nova versão disponível". */
-const VERSION = '4.0.0';
+const VERSION = '4.0.1';
 const CACHE = 'patrimonio-' + VERSION;
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './css/app.css',

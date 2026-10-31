@@ -171,9 +171,11 @@ function showSettings() {
       <div class="field ${prov.needsToken ? '' : 'hidden'}" id="qTokenWrap"><label for="qToken">Token do provedor</label><input id="qToken" type="password" autocomplete="off" value="${e(q.token)}" placeholder="Cole o token"><span class="hint">${e(prov.tokenHint || '')}</span></div>
       <label class="check"><input type="checkbox" id="qFx" ${q.fx ? 'checked' : ''}> Dólar comercial (AwesomeAPI)</label>
       <label class="check"><input type="checkbox" id="qRates" ${q.rates ? 'checked' : ''}> CDI, Selic e IPCA (Banco Central)</label>
-      <label class="check span2"><input type="checkbox" id="qAuto" ${q.auto ? 'checked' : ''}> Atualizar ao abrir o app (no máximo a cada 6 horas)</label>
+      <label class="check span2"><input type="checkbox" id="qAuto" ${q.auto ? 'checked' : ''}> Atualizar ao abrir o app (a cada 1 hora)</label>
     </div>
-    <div class="form-actions" style="justify-content:space-between"><span class="hint">${q.lastRun ? `Última busca: ${new Date(q.lastRun).toLocaleString('pt-BR')}` : 'Nenhuma busca feita ainda.'}</span><span style="display:flex;gap:8px"><button class="btn" data-act="indicators">Indicadores manuais</button><button class="btn primary" id="qRun">Salvar e atualizar agora</button></span></div>
+    <div class="form-actions" style="justify-content:start">
+    <span class="hint">${q.lastRun ? `Última busca: ${new Date(q.lastRun).toLocaleString('pt-BR')}` : 'Nenhuma busca feita ainda.'}</span>
+    <span style="display:flex;gap:8px"><button class="btn" data-act="indicators">Indicadores manuais</button><button class="btn primary" id="qRun">Atualizar</button></span></div>
     <div class="divider"></div>
     <h3>Backup e importação</h3>
     <p class="muted small" style="margin-top:0">Último backup exportado: <b>${state.settings.lastBackupAt ? dateBR(state.settings.lastBackupAt) : 'nunca'}</b>.</p>

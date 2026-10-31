@@ -1,210 +1,617 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
-<meta name="description" content="Controle local de patrimônio, investimentos, aportes, proventos e imposto de renda.">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Patrimônio">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="css/app.css">
-<title>Patrimônio — Controle de Investimentos</title>
-<script>
-/* Aplica o tema antes de desenhar a página, evitando o "piscar" de cores. */
-(function () {
-  try {
-    var p = JSON.parse(localStorage.getItem('patrimonio-prefs-v1') || '{}'), t = p.theme || 'auto';
-    if (t === 'auto') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-    document.documentElement.dataset.theme = t;
-  } catch (e) { document.documentElement.dataset.theme = 'dark'; }
-})();
-</script>
-<script type="module" src="js/main.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description"
+    content="Controle local de patrimônio, investimentos, aportes, proventos e imposto de renda.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Patrimônio">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+  <title>Patrimônio</title>
+  <script>
+    /* Aplica o tema antes de desenhar a página, evitando o "piscar" de cores. */
+    (function () {
+      try {
+        var p = JSON.parse(localStorage.getItem('patrimonio-prefs-v1') || '{}'), t = p.theme || 'auto';
+        if (t === 'auto') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+    })();
+  </script>
+  <script type="module" src="js/main.js"></script>
 </head>
+
 <body>
-<noscript><p style="padding:20px">Este aplicativo precisa de JavaScript habilitado.</p></noscript>
-<div class="app">
-<header class="top">
- <div class="brand"><div class="logo" aria-hidden="true">P</div><div><h1>Patrimônio</h1><p>Controle de investimentos · dados locais</p></div></div>
- <div class="top-actions">
-  <button class="btn ghost" data-act="toggle-hide" id="hideBtn" aria-pressed="false" title="Ocultar/mostrar valores"><span id="hideIco" aria-hidden="true">◉</span><span class="label" id="hideLabel">Ocultar valores</span></button>
-  <button class="btn ghost" data-act="backup-menu" title="Backup"><span aria-hidden="true">⤓</span><span class="label">Backup</span></button>
-  <button class="btn" data-act="settings" aria-label="Configurações e dados" title="Configurações e dados">⚙</button>
- </div>
-</header>
-<div id="banner"></div>
-<nav class="nav" aria-label="Navegação principal">
- <button data-page="dashboard"><span class="ico" aria-hidden="true">⌂</span><span class="full-label">Visão geral</span><span class="short-label">Início</span></button>
- <button data-page="portfolio"><span class="ico" aria-hidden="true">▥</span><span class="full-label">Carteira</span><span class="short-label">Carteira</span></button>
- <button data-page="transactions"><span class="ico" aria-hidden="true">↔</span><span class="full-label">Movimentações</span><span class="short-label">Movim.</span></button>
- <button data-page="income"><span class="ico" aria-hidden="true">✦</span><span class="full-label">Proventos</span><span class="short-label">Proventos</span></button>
- <button data-page="plan"><span class="ico" aria-hidden="true">◎</span><span class="full-label">Metas &amp; aportes</span><span class="short-label">Metas</span></button>
- <button data-page="wealth"><span class="ico" aria-hidden="true">▣</span><span class="full-label">Contas &amp; bens</span><span class="short-label">Bens</span></button>
- <button data-page="reports"><span class="ico" aria-hidden="true">▤</span><span class="full-label">Relatórios &amp; IR</span><span class="short-label">IR</span></button>
-</nav>
+  <noscript>
+    <p style="padding:20px">Este aplicativo precisa de JavaScript habilitado.</p>
+  </noscript>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">P</div>
+        <div>
+          <h1>Patrimônio</h1>
+          <p>Controle de investimentos · dados locais</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn ghost" data-act="toggle-hide" id="hideBtn" aria-pressed="false"
+          title="Ocultar/mostrar valores"><span id="hideIco" aria-hidden="true">◉</span><span class="label"
+            id="hideLabel">Ocultar valores</span></button>
+        <button class="btn ghost" data-act="backup-menu" title="Backup"><span aria-hidden="true">⤓</span><span
+            class="label">Backup</span></button>
+        <button class="btn" data-act="settings" aria-label="Configurações e dados"
+          title="Configurações e dados">⚙</button>
+      </div>
+    </header>
+    <div id="banner"></div>
+    <nav class="nav" aria-label="Navegação principal">
+      <button data-page="dashboard"><span class="ico" aria-hidden="true">⌂</span><span class="full-label">Visão
+          geral</span><span class="short-label">Início</span></button>
+      <button data-page="portfolio"><span class="ico" aria-hidden="true">▥</span><span
+          class="full-label">Carteira</span><span class="short-label">Carteira</span></button>
+      <button data-page="transactions"><span class="ico" aria-hidden="true">↔</span><span
+          class="full-label">Movimentações</span><span class="short-label">Movim.</span></button>
+      <button data-page="income"><span class="ico" aria-hidden="true">✦</span><span
+          class="full-label">Proventos</span><span class="short-label">Proventos</span></button>
+      <button data-page="plan"><span class="ico" aria-hidden="true">◎</span><span class="full-label">Metas &amp;
+          aportes</span><span class="short-label">Metas</span></button>
+      <button data-page="wealth"><span class="ico" aria-hidden="true">▣</span><span class="full-label">Contas &amp;
+          bens</span><span class="short-label">Bens</span></button>
+      <button data-page="reports"><span class="ico" aria-hidden="true">▤</span><span class="full-label">Relatórios &amp;
+          IR</span><span class="short-label">IR</span></button>
+    </nav>
 
-<main>
-<!-- VISÃO GERAL -->
-<section class="page" id="page-dashboard">
- <div class="section-head"><div><h2>Visão geral</h2><p>Seu patrimônio em um só lugar.</p></div><button class="btn primary hide-mobile" data-act="new-tx">＋ Registrar movimentação</button></div>
- <div id="onboarding"></div>
- <div class="grid">
-  <div class="card full"><div class="hero"><div><div class="muted small">Patrimônio líquido</div><div class="big" id="d-net">R$ 0,00</div><div class="small" id="d-net-var"></div></div><div class="chips" id="d-chips"></div></div></div>
-  <div class="card metric span3"><div class="label">Investimentos (mercado)</div><div class="value" id="d-market"></div><div class="sub" id="d-market-sub"></div></div>
-  <div class="card metric span3"><div class="label">Resultado total</div><div class="value" id="d-result"></div><div class="sub" id="d-result-sub"></div></div>
-  <div class="card metric span3"><div class="label" id="d-month-label">Investido no mês</div><div class="value" id="d-month"></div><div class="progress mt"><div id="d-month-bar" style="width:0"></div></div><div class="sub" id="d-month-sub"></div></div>
-  <div class="card metric span3"><div class="label">Proventos (12 meses)</div><div class="value" id="d-income"></div><div class="sub" id="d-income-sub"></div></div>
-  <div class="card span8"><h3>Evolução do patrimônio líquido</h3><div id="d-history"></div></div>
-  <div class="card span4"><h3>Pendências</h3><div id="d-alerts" class="alerts"></div></div>
-  <div class="card half"><h3>Setores vs. alvo <button class="btn sm ghost" data-page-link="plan">Ajustar alvos</button></h3><div id="d-sectors" class="bar-list"></div><p class="muted small mt">A marca indica o percentual-alvo do setor.</p></div>
-  <div class="card half"><h3>Por ativo</h3><div id="d-assets" class="bar-list"></div></div>
-  <div class="card half"><h3>Por classe</h3><div id="d-classes" class="bar-list"></div></div>
-  <div class="card half"><h3>Próximos proventos <button class="btn sm ghost" data-page-link="income">Agenda</button></h3><div id="d-upcoming"></div></div>
-  <div class="card full"><h3>Últimas movimentações <button class="btn sm ghost" data-page-link="transactions">Ver todas</button></h3><div id="d-recent"></div></div>
- </div>
-</section>
+    <main>
+      <!-- VISÃO GERAL -->
+      <section class="page" id="page-dashboard">
+        <div class="section-head">
+          <div>
+            <h2>Visão geral</h2>
+            <p>Seu patrimônio em um só lugar.</p>
+          </div><button class="btn primary hide-mobile" data-act="new-tx">＋ Registrar movimentação</button>
+        </div>
+        <div id="onboarding"></div>
+        <div class="grid">
+          <div class="card full">
+            <div class="hero">
+              <div>
+                <div class="muted small">Patrimônio líquido</div>
+                <div class="big" id="d-net">R$ 0,00</div>
+                <div class="small" id="d-net-var"></div>
+              </div>
+              <div class="chips" id="d-chips"></div>
+            </div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Investimentos (mercado)</div>
+            <div class="value" id="d-market"></div>
+            <div class="sub" id="d-market-sub"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Resultado total</div>
+            <div class="value" id="d-result"></div>
+            <div class="sub" id="d-result-sub"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label" id="d-month-label">Investido no mês</div>
+            <div class="value" id="d-month"></div>
+            <div class="progress mt">
+              <div id="d-month-bar" style="width:0"></div>
+            </div>
+            <div class="sub" id="d-month-sub"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Proventos (12 meses)</div>
+            <div class="value" id="d-income"></div>
+            <div class="sub" id="d-income-sub"></div>
+          </div>
+          <div class="card span8">
+            <h3>Evolução do patrimônio líquido</h3>
+            <div id="d-history"></div>
+          </div>
+          <div class="card span4">
+            <h3>Pendências</h3>
+            <div id="d-alerts" class="alerts"></div>
+          </div>
+          <div class="card half">
+            <h3>Setores vs. alvo <button class="btn sm ghost" data-page-link="plan">Ajustar alvos</button></h3>
+            <div id="d-sectors" class="bar-list"></div>
+            <p class="muted small mt">A marca indica o percentual-alvo do setor.</p>
+          </div>
+          <div class="card half">
+            <h3>Por ativo</h3>
+            <div id="d-assets" class="bar-list"></div>
+          </div>
+          <div class="card half">
+            <h3>Por classe</h3>
+            <div id="d-classes" class="bar-list"></div>
+          </div>
+          <div class="card half">
+            <h3>Próximos proventos <button class="btn sm ghost" data-page-link="income">Agenda</button></h3>
+            <div id="d-upcoming"></div>
+          </div>
+          <div class="card full">
+            <h3>Últimas movimentações <button class="btn sm ghost" data-page-link="transactions">Ver todas</button></h3>
+            <div id="d-recent"></div>
+          </div>
+        </div>
+      </section>
 
-<!-- CARTEIRA -->
-<section class="page" id="page-portfolio">
- <div class="section-head"><div><h2>Carteira</h2><p>Posição, preço médio, resultado e proventos por ativo.</p></div><div class="head-actions"><button class="btn" data-act="indicators">Indicadores</button><button class="btn" data-act="bulk-quotes">Atualizar cotações</button><button class="btn primary" data-act="new-asset">＋ Ativo</button></div></div>
- <div class="card">
-  <div class="filters"><input class="input" id="assetSearch" type="search" placeholder="Buscar ticker, nome ou setor" autocomplete="off"><select class="input" id="assetClassFilter" aria-label="Filtrar por classe"><option value="">Todas as classes</option></select><label class="check"><input type="checkbox" id="hideZero"> Ocultar zerados</label></div>
-  <div class="table-wrap"><table class="rt"><thead><tr><th>Ativo</th><th>Setor</th><th class="num">Qtd.</th><th class="num">Preço médio</th><th class="num">Cotação</th><th class="num">Valor</th><th class="num">Resultado</th><th class="num">Proventos</th><th class="num">Peso</th><th></th></tr></thead><tbody id="portfolioRows"></tbody><tfoot id="portfolioFoot"></tfoot></table></div>
-  <div id="portfolioEmpty" class="empty hidden"></div>
- </div>
- <p class="muted small mt" id="portfolioNote"></p>
-</section>
+      <!-- CARTEIRA -->
+      <section class="page" id="page-portfolio">
+        <div class="section-head">
+          <div>
+            <h2>Carteira</h2>
+            <p>Posição, preço médio, resultado e proventos por ativo.</p>
+          </div>
+          <div class="head-actions"><button class="btn" data-act="indicators">Indicadores</button><button class="btn"
+              data-act="bulk-quotes">Atualizar cotações</button><button class="btn primary" data-act="new-asset">＋
+              Ativo</button></div>
+        </div>
+        <div class="card">
+          <div class="filters"><input class="input" id="assetSearch" type="search"
+              placeholder="Buscar ticker, nome ou setor" autocomplete="off"><select class="input" id="assetClassFilter"
+              aria-label="Filtrar por classe">
+              <option value="">Todas as classes</option>
+            </select><label class="check"><input type="checkbox" id="hideZero"> Ocultar zerados</label></div>
+          <div class="table-wrap">
+            <table class="rt">
+              <thead>
+                <tr>
+                  <th>Ativo</th>
+                  <th>Setor</th>
+                  <th class="num">Qtd.</th>
+                  <th class="num">Preço médio</th>
+                  <th class="num">Cotação</th>
+                  <th class="num">Valor</th>
+                  <th class="num">Resultado</th>
+                  <th class="num">Proventos</th>
+                  <th class="num">Peso</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="portfolioRows"></tbody>
+              <tfoot id="portfolioFoot"></tfoot>
+            </table>
+          </div>
+          <div id="portfolioEmpty" class="empty hidden"></div>
+        </div>
+        <p class="muted small mt" id="portfolioNote"></p>
+      </section>
 
-<!-- MOVIMENTAÇÕES -->
-<section class="page" id="page-transactions">
- <div class="section-head"><div><h2>Movimentações</h2><p>Compras, vendas, proventos, eventos corporativos, aportes e taxas.</p></div><div class="head-actions"><button class="btn" data-act="import-b3">Importar extrato B3</button><button class="btn hide-mobile" data-act="csv-tx">Exportar CSV</button><button class="btn primary hide-mobile" data-act="new-tx">＋ Nova</button></div></div>
- <div class="card">
-  <div class="filters"><input class="input" id="txSearch" type="search" placeholder="Buscar ticker, tipo ou observação" autocomplete="off"><select class="input" id="txTypeFilter" aria-label="Filtrar por tipo"></select><select class="input" id="txAssetFilter" aria-label="Filtrar por ativo"></select><input class="input" type="month" id="txMonth" aria-label="Filtrar por mês"><button class="btn sm ghost" id="txClear" type="button">Limpar</button></div>
-  <div class="muted small" id="txSummary" style="margin-bottom:6px"></div>
-  <div class="table-wrap"><table class="rt"><thead><tr><th>Movimentação</th><th class="num">Qtd. / fator</th><th class="num">Preço</th><th class="num">Valor (R$)</th><th class="num">Taxas</th><th>Observação</th><th></th></tr></thead><tbody id="txRows"></tbody></table></div>
-  <div id="txEmpty" class="empty hidden"><strong>Nenhuma movimentação encontrada</strong>Registre uma compra ou importe o extrato da B3.</div>
-  <div id="txMore" class="form-actions hidden" style="justify-content:center"><button class="btn" data-act="tx-more">Mostrar mais</button></div>
- </div>
-</section>
+      <!-- MOVIMENTAÇÕES -->
+      <section class="page" id="page-transactions">
+        <div class="section-head">
+          <div>
+            <h2>Movimentações</h2>
+            <p>Compras, vendas, proventos, eventos corporativos, aportes e taxas.</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn" data-act="import-b3">Importar extrato B3</button>
+            <button class="btn hide-mobile" data-act="csv-tx">Exportar CSV</button>
+            <button class="btn primary" data-act="new-tx">+ Nova</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="filters"><input class="input" id="txSearch" type="search"
+              placeholder="Buscar ticker, tipo ou observação" autocomplete="off"><select class="input" id="txTypeFilter"
+              aria-label="Filtrar por tipo"></select><select class="input" id="txAssetFilter"
+              aria-label="Filtrar por ativo"></select><input class="input" type="month" id="txMonth"
+              aria-label="Filtrar por mês"><button class="btn sm ghost" id="txClear" type="button">Limpar</button></div>
+          <div class="muted small" id="txSummary" style="margin-bottom:6px"></div>
+          <div class="table-wrap">
+            <table class="rt">
+              <thead>
+                <tr>
+                  <th>Movimentação</th>
+                  <th class="num">Qtd. / fator</th>
+                  <th class="num">Preço</th>
+                  <th class="num">Valor (R$)</th>
+                  <th class="num">Taxas</th>
+                  <th>Observação</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="txRows"></tbody>
+            </table>
+          </div>
+          <div id="txEmpty" class="empty hidden"><strong>Nenhuma movimentação encontrada</strong>Registre uma compra ou
+            importe o extrato da B3.</div>
+          <div id="txMore" class="form-actions hidden" style="justify-content:center"><button class="btn"
+              data-act="tx-more">Mostrar mais</button></div>
+        </div>
+      </section>
 
-<!-- PROVENTOS -->
-<section class="page" id="page-income">
- <div class="section-head"><div><h2>Proventos</h2><p>Agenda de proventos anunciados e histórico recebido.</p></div><div class="head-actions"><button class="btn primary" data-act="new-announcement">＋ Provento anunciado</button></div></div>
- <div class="grid">
-  <div class="card metric span3"><div class="label">Recebido em 12 meses</div><div class="value positive" id="i-12m"></div><div class="sub" id="i-12m-sub"></div></div>
-  <div class="card metric span3"><div class="label">A receber (anunciados)</div><div class="value" id="i-pending"></div><div class="sub" id="i-pending-sub"></div></div>
-  <div class="card metric span3"><div class="label">Yield on cost (12m)</div><div class="value" id="i-yoc"></div><div class="sub">Proventos 12m ÷ custo da carteira</div></div>
-  <div class="card metric span3"><div class="label">Recebido no ano</div><div class="value" id="i-year"></div><div class="sub" id="i-year-sub"></div></div>
-  <div class="card full"><h3>Agenda <label class="check small"><input type="checkbox" id="showReceived"> Mostrar recebidos</label></h3><p class="muted small lead">Cadastre os proventos anunciados (data-com e pagamento). O valor estimado usa sua posição na data-com; JCP já considera 15% de IR retido. Ao pagar, confirme o recebimento para lançar a movimentação.</p><div class="table-wrap"><table class="rt"><thead><tr><th>Ativo</th><th class="num">Valor/cota</th><th class="num">Data-com</th><th class="num">Pagamento</th><th class="num">Qtd. na data-com</th><th class="num">Estimado</th><th></th></tr></thead><tbody id="agendaRows"></tbody></table></div><div id="agendaEmpty" class="empty hidden">Nenhum provento anunciado pendente.</div></div>
-  <div class="card span8"><h3>Proventos por mês <span class="muted small" id="i-chart-range"></span></h3><div id="i-chart"></div><div class="legend"><span><i style="background:var(--accent)"></i>Recebido</span><span><i style="background:var(--blue);opacity:.75"></i>A receber</span></div></div>
-  <div class="card span4"><h3>Por tipo (12 meses)</h3><div id="i-types" class="bar-list"></div></div>
-  <div class="card full"><h3>Por ativo</h3><div class="table-wrap"><table class="rt"><thead><tr><th>Ativo</th><th class="num">12 meses</th><th class="num">Total recebido</th><th class="num">Yield on cost 12m</th><th class="num">Dividend yield 12m</th></tr></thead><tbody id="i-assets"></tbody></table></div><p class="muted small mt">Yield on cost = proventos 12m ÷ custo da posição. Dividend yield = proventos 12m ÷ valor de mercado atual.</p></div>
- </div>
-</section>
+      <!-- PROVENTOS -->
+      <section class="page" id="page-income">
+        <div class="section-head">
+          <div>
+            <h2>Proventos</h2>
+            <p>Agenda de proventos anunciados e histórico recebido.</p>
+          </div>
+          <div class="head-actions"><button class="btn primary" data-act="new-announcement">＋ Provento
+              anunciado</button></div>
+        </div>
+        <div class="grid">
+          <div class="card metric span3">
+            <div class="label">Recebido em 12 meses</div>
+            <div class="value positive" id="i-12m"></div>
+            <div class="sub" id="i-12m-sub"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">A receber (anunciados)</div>
+            <div class="value" id="i-pending"></div>
+            <div class="sub" id="i-pending-sub"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Yield on cost (12m)</div>
+            <div class="value" id="i-yoc"></div>
+            <div class="sub">Proventos 12m ÷ custo da carteira</div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Recebido no ano</div>
+            <div class="value" id="i-year"></div>
+            <div class="sub" id="i-year-sub"></div>
+          </div>
+          <div class="card full">
+            <h3>Agenda <label class="check small"><input type="checkbox" id="showReceived"> Mostrar recebidos</label>
+            </h3>
+            <p class="muted small lead">Cadastre os proventos anunciados (data-com e pagamento). O valor estimado usa
+              sua posição na data-com; JCP já considera 15% de IR retido. Ao pagar, confirme o recebimento para lançar a
+              movimentação.</p>
+            <div class="table-wrap">
+              <table class="rt">
+                <thead>
+                  <tr>
+                    <th>Ativo</th>
+                    <th class="num">Valor/cota</th>
+                    <th class="num">Data-com</th>
+                    <th class="num">Pagamento</th>
+                    <th class="num">Qtd. na data-com</th>
+                    <th class="num">Estimado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="agendaRows"></tbody>
+              </table>
+            </div>
+            <div id="agendaEmpty" class="empty hidden">Nenhum provento anunciado pendente.</div>
+          </div>
+          <div class="card span8">
+            <h3>Proventos por mês <span class="muted small" id="i-chart-range"></span></h3>
+            <div id="i-chart"></div>
+            <div class="legend"><span><i style="background:var(--accent)"></i>Recebido</span><span><i
+                  style="background:var(--blue);opacity:.75"></i>A receber</span></div>
+          </div>
+          <div class="card span4">
+            <h3>Por tipo (12 meses)</h3>
+            <div id="i-types" class="bar-list"></div>
+          </div>
+          <div class="card full">
+            <h3>Por ativo</h3>
+            <div class="table-wrap">
+              <table class="rt">
+                <thead>
+                  <tr>
+                    <th>Ativo</th>
+                    <th class="num">12 meses</th>
+                    <th class="num">Total recebido</th>
+                    <th class="num">Yield on cost 12m</th>
+                    <th class="num">Dividend yield 12m</th>
+                  </tr>
+                </thead>
+                <tbody id="i-assets"></tbody>
+              </table>
+            </div>
+            <p class="muted small mt">Yield on cost = proventos 12m ÷ custo da posição. Dividend yield = proventos 12m ÷
+              valor de mercado atual.</p>
+          </div>
+        </div>
+      </section>
 
-<!-- METAS & APORTES -->
-<section class="page" id="page-plan">
- <div class="section-head"><div><h2>Metas &amp; aportes</h2><p>Meta mensal, alocação-alvo, independência financeira e calculadora de aporte.</p></div></div>
- <div class="grid">
-  <div class="card half">
-   <h3>Meta de aporte mensal</h3>
-   <div class="form-grid">
-    <div class="field"><label for="goalInput">Valor mensal (R$)</label><input id="goalInput" type="text" inputmode="decimal" autocomplete="off"></div>
-    <div class="field"><label for="goalBasis">Contar como aporte</label><select id="goalBasis"><option value="COMPRA">Compras realizadas no mês</option><option value="APORTE">Aportes externos no mês</option></select></div>
-   </div>
-   <div class="divider"></div>
-   <div class="metric"><div class="value" id="goalDone">R$ 0,00</div><div class="sub" id="goalCaption"></div></div>
-   <div class="progress mt"><div id="goalBar" style="width:0"></div></div>
-   <div class="mt" id="goalChart"></div>
-   <div class="form-actions"><button class="btn primary" data-act="save-goal">Salvar meta</button></div>
+      <!-- METAS & APORTES -->
+      <section class="page" id="page-plan">
+        <div class="section-head">
+          <div>
+            <h2>Metas &amp; aportes</h2>
+            <p>Meta mensal, alocação-alvo, independência financeira e calculadora de aporte.</p>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card half">
+            <h3>Meta de aporte mensal</h3>
+            <div class="form-grid">
+              <div class="field"><label for="goalInput">Valor mensal (R$)</label><input id="goalInput" type="text"
+                  inputmode="decimal" autocomplete="off"></div>
+              <div class="field"><label for="goalBasis">Contar como aporte</label><select id="goalBasis">
+                  <option value="COMPRA">Compras realizadas no mês</option>
+                  <option value="APORTE">Aportes externos no mês</option>
+                </select></div>
+            </div>
+            <div class="divider"></div>
+            <div class="metric">
+              <div class="value" id="goalDone">R$ 0,00</div>
+              <div class="sub" id="goalCaption"></div>
+            </div>
+            <div class="progress mt">
+              <div id="goalBar" style="width:0"></div>
+            </div>
+            <div class="mt" id="goalChart"></div>
+            <div class="form-actions"><button class="btn primary" data-act="save-goal">Salvar meta</button></div>
+          </div>
+          <div class="card half">
+            <h3>Alocação-alvo por setor <span class="small" id="targetSum"></span></h3>
+            <p class="muted small lead">Usada no painel e na calculadora. O ideal é somar 100%. Setores sem alvo não
+              recebem aporte.</p>
+            <div class="table-wrap">
+              <table class="rt compact">
+                <thead>
+                  <tr>
+                    <th>Setor</th>
+                    <th class="num">Atual</th>
+                    <th class="num">Alvo (%)</th>
+                    <th class="num">Diferença</th>
+                  </tr>
+                </thead>
+                <tbody id="targetRows"></tbody>
+              </table>
+            </div>
+            <div class="filters mt"><input class="input" id="newSector" placeholder="Novo setor (ex.: Logística)"
+                maxlength="40"><button class="btn" data-act="add-sector">Adicionar</button></div>
+            <div class="form-actions"><button class="btn primary" data-act="save-targets">Salvar alvos</button></div>
+          </div>
+          <div class="card full">
+            <h3>Calculadora de aporte</h3>
+            <p class="muted small lead">Distribui o valor entre os setores mais distantes do alvo e, dentro de cada
+              setor, entre os ativos marcados com menor posição. Quantidades inteiras para ações, FIIs, ETFs e BDRs;
+              renda fixa recebe valor.</p>
+            <div class="filters">
+              <div class="field" style="flex:0 1 220px"><label for="planAmount">Valor a aportar (R$)</label><input
+                  id="planAmount" type="text" inputmode="decimal" autocomplete="off"></div>
+            </div>
+            <div id="planWarnings"></div>
+            <div class="table-wrap">
+              <table class="rt">
+                <thead>
+                  <tr>
+                    <th>Ativo</th>
+                    <th class="num">Posição atual</th>
+                    <th class="num">Cotação</th>
+                    <th class="num">Valor sugerido</th>
+                    <th class="num">Comprar (qtd.)</th>
+                    <th class="num">Custo</th>
+                  </tr>
+                </thead>
+                <tbody id="planRows"></tbody>
+                <tfoot id="planFoot"></tfoot>
+              </table>
+            </div>
+            <div class="form-actions"><span class="muted small" style="margin-right:auto">Desmarque um ativo para
+                tirá-lo do plano sem excluí-lo da carteira.</span><button class="btn primary" data-act="register-plan"
+                id="registerPlanBtn">Registrar compras sugeridas</button></div>
+          </div>
+          <div class="card span8">
+            <h3>Independência financeira</h3>
+            <p class="muted small lead">Quanto patrimônio você precisa para viver de renda e em quanto tempo chega lá,
+              aportando a meta mensal. Use retorno <b>real</b> (acima da inflação) para trabalhar em valores de hoje.
+            </p>
+            <div class="form-grid three">
+              <div class="field"><label for="fiIncome">Renda mensal desejada (R$)</label><input id="fiIncome"
+                  type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 8.000"></div>
+              <div class="field"><label for="fiRate">Taxa de retirada (% a.a.)</label><input id="fiRate" type="text"
+                  inputmode="decimal" autocomplete="off" placeholder="4"></div>
+              <div class="field"><label for="fiReturn">Retorno real esperado (% a.a.)</label><input id="fiReturn"
+                  type="text" inputmode="decimal" autocomplete="off" placeholder="5"></div>
+            </div>
+            <div class="form-actions" style="justify-content:space-between"><label class="check"><input type="checkbox"
+                  id="fiCash"> Incluir contas e reservas</label><button class="btn primary"
+                data-act="save-fi">Salvar</button></div>
+            <div class="divider"></div>
+            <div id="fiResult"></div>
+          </div>
+          <div class="card span4">
+            <h3>Limites de concentração</h3>
+            <p class="muted small lead">O painel avisa quando um ativo ou setor passar destes percentuais da carteira.
+            </p>
+            <div class="form-grid">
+              <div class="field"><label for="limAsset">Por ativo (%)</label><input id="limAsset" type="text"
+                  inputmode="decimal" autocomplete="off"></div>
+              <div class="field"><label for="limSector">Por setor (%)</label><input id="limSector" type="text"
+                  inputmode="decimal" autocomplete="off"></div>
+            </div>
+            <div id="limResult" class="mt"></div>
+            <div class="form-actions"><button class="btn primary" data-act="save-limits">Salvar limites</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTAS & BENS -->
+      <section class="page" id="page-wealth">
+        <div class="section-head">
+          <div>
+            <h2>Contas &amp; bens</h2>
+            <p>Contas, reservas, bens e dívidas no mesmo balanço.</p>
+          </div><button class="btn primary" data-act="new-wealth">＋ Adicionar registro</button>
+        </div>
+        <div class="grid">
+          <div class="card metric span3">
+            <div class="label">Contas e reservas</div>
+            <div class="value" id="w-cash"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Investimentos</div>
+            <div class="value" id="w-inv"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Bens</div>
+            <div class="value" id="w-prop"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Dívidas</div>
+            <div class="value negative" id="w-debt"></div>
+          </div>
+          <div class="card full">
+            <h3>Contas e reservas</h3>
+            <p class="muted small lead">Saldo atual por conta. Em “Saldo em corretora”, informe só o dinheiro parado —
+              os ativos já estão na carteira. Saldos negativos são aceitos.</p>
+            <div class="table-wrap">
+              <table class="rt">
+                <thead>
+                  <tr>
+                    <th>Conta</th>
+                    <th>Tipo</th>
+                    <th>Instituição</th>
+                    <th class="num">Saldo</th>
+                    <th class="num">Atualizado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="accountRows"></tbody>
+              </table>
+            </div>
+            <div id="accountEmpty" class="empty">Nenhuma conta cadastrada.</div>
+          </div>
+          <div class="card half">
+            <h3>Bens</h3>
+            <div class="table-wrap">
+              <table class="rt">
+                <thead>
+                  <tr>
+                    <th>Bem</th>
+                    <th>Categoria</th>
+                    <th class="num">Valor estimado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="propertyRows"></tbody>
+              </table>
+            </div>
+            <div id="propertyEmpty" class="empty">Nenhum bem cadastrado.</div>
+          </div>
+          <div class="card half">
+            <h3>Dívidas e passivos</h3>
+            <div class="table-wrap">
+              <table class="rt">
+                <thead>
+                  <tr>
+                    <th>Dívida</th>
+                    <th>Tipo</th>
+                    <th class="num">Saldo devedor</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="liabilityRows"></tbody>
+              </table>
+            </div>
+            <div id="liabilityEmpty" class="empty">Nenhuma dívida cadastrada.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RELATÓRIOS & IR -->
+      <section class="page" id="page-reports">
+        <div class="section-head">
+          <div>
+            <h2>Relatórios &amp; IR</h2>
+            <p>Resultado realizado, apoio à declaração e resumo anual.</p>
+          </div>
+          <div class="head-actions"><select class="input" id="reportYear" aria-label="Ano"
+              style="min-height:40px;width:auto"></select><button class="btn" data-act="reconcile-b3">Conferir posição
+              B3</button><button class="btn" data-act="print">Imprimir</button></div>
+        </div>
+        <div class="grid">
+          <div class="card metric span3">
+            <div class="label">Resultado realizado</div>
+            <div class="value" id="r-realized"></div>
+            <div class="sub">Vendas − custo médio − taxas</div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Imposto estimado (DARF)</div>
+            <div class="value" id="r-darf"></div>
+            <div class="sub" id="r-darf-sub"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Proventos</div>
+            <div class="value positive" id="r-income"></div>
+            <div class="sub" id="r-income-sub"></div>
+          </div>
+          <div class="card metric span3">
+            <div class="label">Compras / vendas</div>
+            <div class="value" id="r-flow"></div>
+            <div class="sub" id="r-flow-sub"></div>
+          </div>
+          <div class="card full">
+            <h3>Apoio à declaração do IR <span class="muted small" id="r-year-label"></span></h3>
+            <div class="tabs" role="tablist"><button data-tab="bens" class="active">Bens e direitos</button><button
+                data-tab="rend">Rendimentos</button><button data-tab="rv">Renda variável (mensal)</button></div>
+            <div id="r-tab-bens"></div>
+            <div id="r-tab-rend" class="hidden"></div>
+            <div id="r-tab-rv" class="hidden"></div>
+            <p class="muted small mt">Ferramenta de apoio, não substitui os informes da corretora nem um contador.
+              Considera operações comuns (sem day trade), isenção de R$ 20 mil/mês para ações, compensação de prejuízos
+              por categoria e DARF mínimo de R$ 10. Não deduz o IRRF de 0,005%. Ativos no exterior, cripto e renda fixa
+              seguem regras próprias e aparecem só como informação. Confira os códigos sugeridos no programa da Receita
+              do ano.</p>
+          </div>
+          <div class="card full">
+            <h3>Resumo anual</h3>
+            <div class="table-wrap">
+              <table class="rt">
+                <thead>
+                  <tr>
+                    <th>Ano</th>
+                    <th class="num">Compras</th>
+                    <th class="num">Vendas</th>
+                    <th class="num">Realizado</th>
+                    <th class="num">Proventos</th>
+                    <th class="num">Aportes externos</th>
+                    <th class="num">Retiradas</th>
+                    <th class="num">Taxas</th>
+                  </tr>
+                </thead>
+                <tbody id="r-years"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card full">
+            <h3>Notas sobre os cálculos</h3>
+            <p class="muted small">Preço médio pelo custo médio ponderado (taxas de compra entram no custo; taxas de
+              venda reduzem o resultado). Desdobramentos e grupamentos mudam a quantidade sem alterar o custo;
+              bonificações somam a quantidade e o custo atribuído. Ativos em dólar são convertidos pela taxa informada
+              em cada movimentação (custo) e pela cotação atual do dólar (mercado). Renda fixa é estimada pela curva do
+              indexador com os indicadores informados — títulos marcados a mercado (Tesouro) podem variar. Não calcula
+              rentabilidade ponderada pelo tempo.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div class="bottom-note">Patrimônio <span id="appVersion"></span> · PWA local-first · Seus dados ficam neste
+      dispositivo.</div>
   </div>
-  <div class="card half">
-   <h3>Alocação-alvo por setor <span class="small" id="targetSum"></span></h3>
-   <p class="muted small lead">Usada no painel e na calculadora. O ideal é somar 100%. Setores sem alvo não recebem aporte.</p>
-   <div class="table-wrap"><table class="rt compact"><thead><tr><th>Setor</th><th class="num">Atual</th><th class="num">Alvo (%)</th><th class="num">Diferença</th></tr></thead><tbody id="targetRows"></tbody></table></div>
-   <div class="filters mt"><input class="input" id="newSector" placeholder="Novo setor (ex.: Logística)" maxlength="40"><button class="btn" data-act="add-sector">Adicionar</button></div>
-   <div class="form-actions"><button class="btn primary" data-act="save-targets">Salvar alvos</button></div>
-  </div>
-  <div class="card full">
-   <h3>Calculadora de aporte</h3>
-   <p class="muted small lead">Distribui o valor entre os setores mais distantes do alvo e, dentro de cada setor, entre os ativos marcados com menor posição. Quantidades inteiras para ações, FIIs, ETFs e BDRs; renda fixa recebe valor.</p>
-   <div class="filters"><div class="field" style="flex:0 1 220px"><label for="planAmount">Valor a aportar (R$)</label><input id="planAmount" type="text" inputmode="decimal" autocomplete="off"></div></div>
-   <div id="planWarnings"></div>
-   <div class="table-wrap"><table class="rt"><thead><tr><th>Ativo</th><th class="num">Posição atual</th><th class="num">Cotação</th><th class="num">Valor sugerido</th><th class="num">Comprar (qtd.)</th><th class="num">Custo</th></tr></thead><tbody id="planRows"></tbody><tfoot id="planFoot"></tfoot></table></div>
-   <div class="form-actions"><span class="muted small" style="margin-right:auto">Desmarque um ativo para tirá-lo do plano sem excluí-lo da carteira.</span><button class="btn primary" data-act="register-plan" id="registerPlanBtn">Registrar compras sugeridas</button></div>
-  </div>
-  <div class="card span8">
-   <h3>Independência financeira</h3>
-   <p class="muted small lead">Quanto patrimônio você precisa para viver de renda e em quanto tempo chega lá, aportando a meta mensal. Use retorno <b>real</b> (acima da inflação) para trabalhar em valores de hoje.</p>
-   <div class="form-grid three">
-    <div class="field"><label for="fiIncome">Renda mensal desejada (R$)</label><input id="fiIncome" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 8.000"></div>
-    <div class="field"><label for="fiRate">Taxa de retirada (% a.a.)</label><input id="fiRate" type="text" inputmode="decimal" autocomplete="off" placeholder="4"></div>
-    <div class="field"><label for="fiReturn">Retorno real esperado (% a.a.)</label><input id="fiReturn" type="text" inputmode="decimal" autocomplete="off" placeholder="5"></div>
-   </div>
-   <div class="form-actions" style="justify-content:space-between"><label class="check"><input type="checkbox" id="fiCash"> Incluir contas e reservas</label><button class="btn primary" data-act="save-fi">Salvar</button></div>
-   <div class="divider"></div>
-   <div id="fiResult"></div>
-  </div>
-  <div class="card span4">
-   <h3>Limites de concentração</h3>
-   <p class="muted small lead">O painel avisa quando um ativo ou setor passar destes percentuais da carteira.</p>
-   <div class="form-grid">
-    <div class="field"><label for="limAsset">Por ativo (%)</label><input id="limAsset" type="text" inputmode="decimal" autocomplete="off"></div>
-    <div class="field"><label for="limSector">Por setor (%)</label><input id="limSector" type="text" inputmode="decimal" autocomplete="off"></div>
-   </div>
-   <div id="limResult" class="mt"></div>
-   <div class="form-actions"><button class="btn primary" data-act="save-limits">Salvar limites</button></div>
-  </div>
- </div>
-</section>
 
-<!-- CONTAS & BENS -->
-<section class="page" id="page-wealth">
- <div class="section-head"><div><h2>Contas &amp; bens</h2><p>Contas, reservas, bens e dívidas no mesmo balanço.</p></div><button class="btn primary" data-act="new-wealth">＋ Adicionar registro</button></div>
- <div class="grid">
-  <div class="card metric span3"><div class="label">Contas e reservas</div><div class="value" id="w-cash"></div></div>
-  <div class="card metric span3"><div class="label">Investimentos</div><div class="value" id="w-inv"></div></div>
-  <div class="card metric span3"><div class="label">Bens</div><div class="value" id="w-prop"></div></div>
-  <div class="card metric span3"><div class="label">Dívidas</div><div class="value negative" id="w-debt"></div></div>
-  <div class="card full"><h3>Contas e reservas</h3><p class="muted small lead">Saldo atual por conta. Em “Saldo em corretora”, informe só o dinheiro parado — os ativos já estão na carteira. Saldos negativos são aceitos.</p><div class="table-wrap"><table class="rt"><thead><tr><th>Conta</th><th>Tipo</th><th>Instituição</th><th class="num">Saldo</th><th class="num">Atualizado</th><th></th></tr></thead><tbody id="accountRows"></tbody></table></div><div id="accountEmpty" class="empty">Nenhuma conta cadastrada.</div></div>
-  <div class="card half"><h3>Bens</h3><div class="table-wrap"><table class="rt"><thead><tr><th>Bem</th><th>Categoria</th><th class="num">Valor estimado</th><th></th></tr></thead><tbody id="propertyRows"></tbody></table></div><div id="propertyEmpty" class="empty">Nenhum bem cadastrado.</div></div>
-  <div class="card half"><h3>Dívidas e passivos</h3><div class="table-wrap"><table class="rt"><thead><tr><th>Dívida</th><th>Tipo</th><th class="num">Saldo devedor</th><th></th></tr></thead><tbody id="liabilityRows"></tbody></table></div><div id="liabilityEmpty" class="empty">Nenhuma dívida cadastrada.</div></div>
- </div>
-</section>
-
-<!-- RELATÓRIOS & IR -->
-<section class="page" id="page-reports">
- <div class="section-head"><div><h2>Relatórios &amp; IR</h2><p>Resultado realizado, apoio à declaração e resumo anual.</p></div><div class="head-actions"><select class="input" id="reportYear" aria-label="Ano" style="min-height:40px;width:auto"></select><button class="btn" data-act="reconcile-b3">Conferir posição B3</button><button class="btn" data-act="print">Imprimir</button></div></div>
- <div class="grid">
-  <div class="card metric span3"><div class="label">Resultado realizado</div><div class="value" id="r-realized"></div><div class="sub">Vendas − custo médio − taxas</div></div>
-  <div class="card metric span3"><div class="label">Imposto estimado (DARF)</div><div class="value" id="r-darf"></div><div class="sub" id="r-darf-sub"></div></div>
-  <div class="card metric span3"><div class="label">Proventos</div><div class="value positive" id="r-income"></div><div class="sub" id="r-income-sub"></div></div>
-  <div class="card metric span3"><div class="label">Compras / vendas</div><div class="value" id="r-flow"></div><div class="sub" id="r-flow-sub"></div></div>
-  <div class="card full">
-   <h3>Apoio à declaração do IR <span class="muted small" id="r-year-label"></span></h3>
-   <div class="tabs" role="tablist"><button data-tab="bens" class="active">Bens e direitos</button><button data-tab="rend">Rendimentos</button><button data-tab="rv">Renda variável (mensal)</button></div>
-   <div id="r-tab-bens"></div>
-   <div id="r-tab-rend" class="hidden"></div>
-   <div id="r-tab-rv" class="hidden"></div>
-   <p class="muted small mt">Ferramenta de apoio, não substitui os informes da corretora nem um contador. Considera operações comuns (sem day trade), isenção de R$ 20 mil/mês para ações, compensação de prejuízos por categoria e DARF mínimo de R$ 10. Não deduz o IRRF de 0,005%. Ativos no exterior, cripto e renda fixa seguem regras próprias e aparecem só como informação. Confira os códigos sugeridos no programa da Receita do ano.</p>
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h2 id="modalTitle"></h2><button class="icon-btn" data-close aria-label="Fechar">✕</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
   </div>
-  <div class="card full"><h3>Resumo anual</h3><div class="table-wrap"><table class="rt"><thead><tr><th>Ano</th><th class="num">Compras</th><th class="num">Vendas</th><th class="num">Realizado</th><th class="num">Proventos</th><th class="num">Aportes externos</th><th class="num">Retiradas</th><th class="num">Taxas</th></tr></thead><tbody id="r-years"></tbody></table></div></div>
-  <div class="card full"><h3>Notas sobre os cálculos</h3><p class="muted small">Preço médio pelo custo médio ponderado (taxas de compra entram no custo; taxas de venda reduzem o resultado). Desdobramentos e grupamentos mudam a quantidade sem alterar o custo; bonificações somam a quantidade e o custo atribuído. Ativos em dólar são convertidos pela taxa informada em cada movimentação (custo) e pela cotação atual do dólar (mercado). Renda fixa é estimada pela curva do indexador com os indicadores informados — títulos marcados a mercado (Tesouro) podem variar. Não calcula rentabilidade ponderada pelo tempo.</p></div>
- </div>
-</section>
-</main>
-<div class="bottom-note">Patrimônio <span id="appVersion"></span> · PWA local-first · Seus dados ficam neste dispositivo.</div>
-</div>
-
-<button class="mobile-fab" aria-label="Registrar movimentação" data-act="new-tx">＋</button>
-<div class="modal-backdrop" id="modalBackdrop"><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle"></h2><button class="icon-btn" data-close aria-label="Fechar">✕</button></div><div id="modalBody"></div></div></div>
-<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="toastAction" class="hidden" type="button"></button></div>
-<input id="importFile" type="file" accept="application/json,.json" class="hidden">
-<input id="b3File" type="file" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" class="hidden" multiple>
+  <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="toastAction"
+      class="hidden" type="button"></button></div>
+  <input id="importFile" type="file" accept="application/json,.json" class="hidden">
+  <input id="b3File" type="file"
+    accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" class="hidden"
+    multiple>
 </body>
+
 </html>
